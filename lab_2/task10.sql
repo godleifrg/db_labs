@@ -1,3 +1,4 @@
+/*Выберите 10 фамилий членов клуба упорядочите их по алфавиту без повторов.*/
 use cd;
 SELECT DISTINCT surname
 FROM members
