@@ -2,5 +2,6 @@
 use cd;
 SELECT DISTINCT surname
 FROM members
-ORDER BY surname
+WHERE surname != 'Guest'
+ORDER BY surname 
 LIMIT 10;
