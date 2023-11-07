@@ -2,4 +2,4 @@
 use cd;
 SELECT memid, surname, firstname
 FROM members
-WHERE joindate >= '2012-09-01';
+WHERE joindate >= '2012-09-01' and surname != 'Guest';
