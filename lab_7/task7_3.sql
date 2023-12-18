@@ -2,15 +2,16 @@
 USE cd;
 DELIMITER $$
 DROP PROCEDURE IF EXISTS payback $$
-CREATE PROCEDURE payback()
+CREATE PROCEDURE payback(yourdate DATE)
   BEGIN
     SELECT b.facid, f.facility, SUM(p.payment) - f.monthlymaintenance AS revenue
 	FROM bookings b
 	INNER JOIN payments p ON b.bookid = p.bookid
 	INNER JOIN facilities f ON b.facid = f.facid
-	WHERE DATE(b.starttime) < '2012-08-01' AND DATE(b.starttime) >= '2012-07-01'
-	GROUP BY b.facid ORDER BY b.facid;
+	WHERE DATE_FORMAT(starttime, '%y %m') = DATE_FORMAT(yourdate, '%y %m')
+	GROUP BY b.facid 
+    ORDER BY b.facid;
   END $$
 DELIMITER ;
 
-CALL payback;
+CALL payback('2012-07-14');
