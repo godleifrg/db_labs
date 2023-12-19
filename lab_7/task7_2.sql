@@ -3,15 +3,15 @@ USE cd;
 CREATE TABLE payments (
   payid INT PRIMARY KEY AUTO_INCREMENT,
   bookid INT,
-  payment DECIMAL,
-  FOREIGN KEY (bookid) REFERENCES cd.bookings(bookid)
+  payment DECIMAL DEFAULT 0,
+  FOREIGN KEY (bookid) REFERENCES bookings(bookid)
 );
 
 /*Добавьте в таблицу bookings поле payed, смысл которого оплачена или не оплачена аренда.*/
 
-ALTER TABLE bookings ADD COLUMN payed TINYINT DEFAULT 0;
+ALTER TABLE bookings ADD payed TINYINT DEFAULT 0;
 
-/*Создайте триггеры, которые: 1) Запрещают удаление записей, если они уже оплачены;*/
+/*событие на запрет удаления оплаченных бронирований*/
 
 DELIMITER $$
 
@@ -47,7 +47,7 @@ BEGIN
     END CASE;
 END $$
 
-/*В данном триггере мы заполняем таблицу payments, соответственно функции Task 7-1 и соответствующим bookid*/
+/*Если бронь изменила свой статус оплаты, то удаляет\добавляет оплату (в ином случае делает ничего)*/
 
 DROP TRIGGER IF EXISTS payed_in_book $$
 CREATE TRIGGER payed_in_book 
@@ -61,21 +61,20 @@ BEGIN
 END $$
 
 DELIMITER ;
-/*Напишите скрипт, который отмечает, что все аренды июля 2012 года оплачены.*/
+/*изменение статуса записей*/
 
 UPDATE bookings 
 SET payed = 1
-WHERE YEAR(starttime) = 2012 AND MONTH(starttime) = 7;
+WHERE DATE(starttime) < '2012-08-01' AND DATE(starttime) >= '2012-07-01';
 
 /*Посчитайте (написав соответствующий скрипт) оплату на июль 2012 года двумя способами: 1) используя данные таблицы payments*/
 
-SELECT SUM(payment) as costJuly1
+SELECT SUM(payment) as July1
 FROM payments;
 
 /*2) используя только функцию из Task-7-1 и данные таблицы bookings.*/
 
-SELECT SUM(CalculateRentalCost(memid, facid, slots)) as costJuly2
+SELECT SUM(CalculateRentalCost(memid, facid, slots)) as July2
 FROM bookings 
-WHERE YEAR(starttime) = 2012 AND MONTH(starttime) = 7;
-
-/*Вывод: при подсчете costJuly1 и costJuly2 выдали одинаковые значения*/
+WHERE DATE(starttime) < '2012-08-01' AND DATE(starttime) >= '2012-07-01';
+/*Вывод: при подсчете July1 и July2 выдали одинаковые значения*/

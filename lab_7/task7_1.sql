@@ -1,16 +1,17 @@
 /*Создайте функцию, которая рассчитывает стоимость каждой аренды (для каждой записи таблицы bookings)*/
 USE cd;
 DELIMITER $$
-DROP FUNCTION IF EXISTS CalculateRentalCost $$
-CREATE FUNCTION CalculateRentalCost(memid INT, facid INT, slots INT)
+DROP FUNCTION IF EXISTS rentalcost $$
+CREATE FUNCTION rentalcost(memid INT, facid INT, slots INT)
 RETURNS DECIMAL(10, 2)
-DETERMINISTIC
+NOT DETERMINISTIC
 BEGIN
 	DECLARE cost DECIMAL(10, 2);
-	SET cost = (SELECT IF(memid = 0, guestcost * slots, membercost * slots)
-	FROM facilities f WHERE facid = f.facid);
+	SET cost = (SELECT IF(memid = 0, guestcost, membercost) * slots
+	FROM facilities f
+	WHERE facid = f.facid);
 	RETURN cost;
 END$$
 DELIMITER ;
-SELECT CalculateRentalCost(memid, facid, slots) AS cost
+SELECT rentalcost(memid, facid, slots) 
 FROM bookings;
