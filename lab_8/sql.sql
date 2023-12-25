@@ -90,12 +90,10 @@ CREATE TABLE IF NOT EXISTS `pizzeria`.`average_quantity` (`ID` INT, `'Назва
 -- -----------------------------------------------------
 -- View `pizzeria`.`free_deliveryman`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `pizzeria`.`free_deliveryman`;
-USE `pizzeria`;
-CREATE  OR REPLACE VIEW `free_deliveryman` AS
-	SELECT DISTINCT delman.ID, delman.fullname AS 'ФИО', delman.phonenumber AS 'Номер телефона' FROM deliveryman delman
-	LEFT JOIN deliveries deliv ON delman.ID = deliv.deliverymanID
-	WHERE deliv.deliveryDate <= CURRENT_TIMESTAMP() OR deliv.ID IS NULL;
+DROP TABLE IF EXISTS 'pizzeria'.'free_deliveryman';
+USE 'pizzeria';
+CREATE OR REPLACE VIEW free_deliveryman AS
+  SELECT DISTINCT delman.ID, delman.fullname AS 'ФИО', delman.phonenumber AS 'Номер телефона' FROM deliveryman delman;
 
 -- -----------------------------------------------------
 -- View `pizzeria`.`order_cost`
@@ -110,14 +108,14 @@ CREATE  OR REPLACE VIEW `order_cost` AS
 -- -----------------------------------------------------
 -- View `pizzeria`.`average_quantity`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `pizzeria`.`average_quantity`;
-USE `pizzeria`;
-CREATE  OR REPLACE VIEW `average_quantity` AS
-	SELECT menu.ID AS ID, menu.name AS 'Название позиции',  DATE_FORMAT(orderDate, '%y %m %d') AS 'Дата заказа', 
-	ROUND(AVG(deliv.quantity), 3) AS 'Среднее кол-во заказов'
-	FROM menu 
-	JOIN deliveries deliv ON menu.ID = deliv.menuID
-	GROUP BY menu.ID, DATE_FORMAT(orderDate, '%y %m %d');
+DROP TABLE IF EXISTS 'pizzeria'.'average_quantity';
+USE 'pizzeria';
+CREATE OR REPLACE VIEW average_quantity AS
+  SELECT menu.ID AS ID, menu.name AS 'Название позиции',  
+  ROUND(AVG(deliv.quantity), 3) AS 'Среднее кол-во заказов'
+  FROM menu 
+  JOIN deliveries deliv ON menu.ID = deliv.menuID
+  GROUP BY menu.ID;
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
