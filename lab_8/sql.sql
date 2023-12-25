@@ -121,7 +121,7 @@ CREATE OR REPLACE VIEW average_quantity AS
          ROUND(AVG(deliv.quantity), 3) AS 'Среднее кол-во заказов'
   FROM deliveries deliv 
   JOIN menu ON menu.ID = deliv.menuID
-  WHERE DATE(deliv.orderDate) = CURDATE()  -- Фильтр по сегодняшней дате
+  WHERE DATE(deliv.orderDate) = CURRENT_TIMESTAMP()  -- Фильтр по сегодняшней дате
   GROUP BY deliv.deliveryID, menu.name;;
 
 SET SQL_MODE=@OLD_SQL_MODE;
