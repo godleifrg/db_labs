@@ -93,7 +93,12 @@ CREATE TABLE IF NOT EXISTS `pizzeria`.`average_quantity` (`ID` INT, `'Назва
 DROP TABLE IF EXISTS 'pizzeria'.'free_deliveryman';
 USE 'pizzeria';
 CREATE OR REPLACE VIEW free_deliveryman AS
-  SELECT DISTINCT delman.ID, delman.fullname AS 'ФИО', delman.phonenumber AS 'Номер телефона' FROM deliveryman delman;
+  SELECT ID, fullname AS 'ФИО', phonenumber AS 'Номер телефона' 
+  FROM deliveryman 
+  WHERE ID NOT IN
+  (SELECT deliverymanID FROM deliveries WHERE deliveryDate IS NULL AND orderDate <= CURRENT_TIMESTAMP() );
+
+  
 
 -- -----------------------------------------------------
 -- View `pizzeria`.`order_cost`
@@ -111,11 +116,13 @@ CREATE  OR REPLACE VIEW `order_cost` AS
 DROP TABLE IF EXISTS 'pizzeria'.'average_quantity';
 USE 'pizzeria';
 CREATE OR REPLACE VIEW average_quantity AS
-  SELECT menu.ID AS ID, menu.name AS 'Название позиции',  
-  ROUND(AVG(deliv.quantity), 3) AS 'Среднее кол-во заказов'
-  FROM menu 
-  JOIN deliveries deliv ON menu.ID = deliv.menuID
-  GROUP BY menu.ID;
+  SELECT deliv.deliveryID AS ID, 
+         menu.name AS 'Название позиции',  
+         ROUND(AVG(deliv.quantity), 3) AS 'Среднее кол-во заказов'
+  FROM deliveries deliv 
+  JOIN menu ON menu.ID = deliv.menuID
+  WHERE DATE(deliv.orderDate) = CURDATE()  -- Фильтр по сегодняшней дате
+  GROUP BY deliv.deliveryID, menu.name;;
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
