@@ -1,17 +1,24 @@
-/*Напишите процедуру, которая считает окупаемость каждого объекта клуба на основании оплаты аренд за месяц. Применить ее к июлю 2012 года. */
 USE cd;
-DELIMITER $$
-DROP PROCEDURE IF EXISTS payback $$
-CREATE PROCEDURE payback(yourdate DATE)
-  BEGIN
-    SELECT b.facid, f.facility, SUM(p.payment) - f.monthlymaintenance AS revenue
-	FROM bookings b
-	JOIN payments p ON b.bookid = p.bookid
-	JOIN facilities f ON b.facid = f.facid
-	WHERE DATE_FORMAT(starttime, '%y %m') = DATE_FORMAT(yourdate, '%y %m')
-	GROUP BY b.facid 
-    ORDER BY b.facid;
-  END $$
-DELIMITER ;
 
-CALL payback('2012-07-14');
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS calculate_profit $$
+CREATE PROCEDURE calculate_profit(month_year DATE)
+READS SQL DATA
+BEGIN
+    SELECT 
+        b.facid AS FacilityID,
+        f.facname AS FacilityName,
+        IFNULL(
+            f.initialoutlay / NULLIF(SUM(p.payment) - f.monthlymaintenance, 0),
+            10000000000000
+        ) AS Profitability
+    FROM bookings AS b
+    JOIN payments AS p ON b.bookid = p.bookid
+    JOIN facilities AS f ON b.facid = f.facid
+    WHERE MONTH(b.starttime) = MONTH(month_year)
+    AND YEAR(b.starttime) = YEAR(month_year)
+    GROUP BY b.facid, f.facname;
+END $$
+
+CALL calculate_profit('2012-07-01');
