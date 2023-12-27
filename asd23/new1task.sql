@@ -1,19 +1,14 @@
 USE cd;
-
 DELIMITER //
-
 CREATE PROCEDURE CalculateMostProfitableFacilityPerMonth()
 BEGIN
     DECLARE done INT DEFAULT FALSE;
     DECLARE current_month INT;
-    
+ 
     DECLARE cur CURSOR FOR
     SELECT DISTINCT MONTH(starttime) AS month FROM bookings ORDER BY month;
-
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
-
     OPEN cur;
-
     read_loop: LOOP
         FETCH cur INTO current_month;
         IF done THEN
@@ -36,11 +31,7 @@ BEGIN
         PREPARE stmt FROM @sql_query;
         EXECUTE stmt;
         DEALLOCATE PREPARE stmt;
-
     END LOOP;
-
     CLOSE cur;
-
 END//
-
 DELIMITER ;
